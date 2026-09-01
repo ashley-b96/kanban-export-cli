@@ -1,0 +1,21 @@
+{
+  "name": "kanban-export-cli",
+  "version": "0.1.0",
+  "description": "Turn kanban board export dumps into readable summaries",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "kanban-export": "./dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.4"
+  }
+}
