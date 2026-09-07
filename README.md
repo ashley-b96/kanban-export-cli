@@ -78,6 +78,12 @@ npm install
 npm run build
 ```
 
+Run the tests with:
+
+```sh
+npm test
+```
+
 ## Status
 
 Only reads Trello's export format right now. See the roadmap for what's
