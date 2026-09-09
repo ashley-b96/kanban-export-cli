@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { readFileSync } from "node:fs";
 import { parseTrelloExport, TrelloParseError } from "./trello.js";
+import { boardToCsv } from "./csv.js";
 import type { Board } from "./types.js";
 
 function readStdin(): Promise<string> {
@@ -29,7 +30,14 @@ function printSummary(board: Board): void {
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
   const asJson = args.includes("--json");
+  const asCsv = args.includes("--csv");
   const fileArg = args.find((a) => !a.startsWith("-"));
+
+  if (asJson && asCsv) {
+    console.error("kanban-export: --json and --csv can't be used together");
+    process.exitCode = 1;
+    return;
+  }
 
   const raw =
     fileArg && fileArg !== "-"
@@ -40,6 +48,8 @@ async function main(): Promise<void> {
 
   if (asJson) {
     console.log(JSON.stringify(board, null, 2));
+  } else if (asCsv) {
+    process.stdout.write(boardToCsv(board));
   } else {
     printSummary(board);
   }

@@ -62,6 +62,18 @@ Archived cards are dropped from the text summary but kept in the `--json`
 output, since "was this ever on the board" is sometimes exactly what you
 want to know.
 
+Pass `--csv` to get one row per card instead, list name included, ready to
+open in a spreadsheet:
+
+```sh
+kanban-export board.json --csv
+```
+
+```
+list,card,description,due,labels,archived
+Backlog,Rework the login form,Uses the old form styles.,2026-09-05T00:00:00.000Z,frontend; blocked,false
+```
+
 ## Library
 
 ```ts
@@ -87,4 +99,4 @@ npm test
 ## Status
 
 Only reads Trello's export format right now. See the roadmap for what's
-planned - other export formats, CSV output, and filtering by list or label.
+planned - filtering by list or label, and other export formats.
