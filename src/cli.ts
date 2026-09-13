@@ -2,7 +2,14 @@
 import { readFileSync } from "node:fs";
 import { parseTrelloExport, TrelloParseError } from "./trello.js";
 import { boardToCsv } from "./csv.js";
+import { filterBoard } from "./filter.js";
 import type { Board } from "./types.js";
+
+function argValue(args: string[], flag: string): string | undefined {
+  const prefix = `${flag}=`;
+  const arg = args.find((a) => a.startsWith(prefix));
+  return arg?.slice(prefix.length);
+}
 
 function readStdin(): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -31,6 +38,8 @@ async function main(): Promise<void> {
   const args = process.argv.slice(2);
   const asJson = args.includes("--json");
   const asCsv = args.includes("--csv");
+  const listFilter = argValue(args, "--list");
+  const labelFilter = argValue(args, "--label");
   const fileArg = args.find((a) => !a.startsWith("-"));
 
   if (asJson && asCsv) {
@@ -44,7 +53,10 @@ async function main(): Promise<void> {
       ? readFileSync(fileArg, "utf8")
       : await readStdin();
 
-  const board = parseTrelloExport(raw);
+  const board = filterBoard(parseTrelloExport(raw), {
+    list: listFilter,
+    label: labelFilter,
+  });
 
   if (asJson) {
     console.log(JSON.stringify(board, null, 2));

@@ -74,12 +74,22 @@ list,card,description,due,labels,archived
 Backlog,Rework the login form,Uses the old form styles.,2026-09-05T00:00:00.000Z,frontend; blocked,false
 ```
 
+Pass `--list=NAME` and/or `--label=NAME` to only look at part of the board.
+Both match case-insensitively and combine (a card has to satisfy both if
+both are given), and work with `--json` and `--csv` as well as the default
+summary:
+
+```sh
+kanban-export board.json --list=Backlog
+kanban-export board.json --label=blocked --csv
+```
+
 ## Library
 
 ```ts
-import { parseTrelloExport } from "kanban-export-cli";
+import { parseTrelloExport, filterBoard } from "kanban-export-cli";
 
-const board = parseTrelloExport(jsonString);
+const board = filterBoard(parseTrelloExport(jsonString), { label: "blocked" });
 // board.lists, board.cards - see src/types.ts
 ```
 
@@ -98,5 +108,6 @@ npm test
 
 ## Status
 
-Only reads Trello's export format right now. See the roadmap for what's
-planned - filtering by list or label, and other export formats.
+Only reads Trello's export format right now. Filtering by list or label is
+in; a second export format (Jira or Asana) and an npm publish with a
+compiled dist are still planned.
