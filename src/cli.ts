@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { readFileSync } from "node:fs";
 import { parseTrelloExport, TrelloParseError } from "./trello.js";
+import { parseJiraExport, JiraParseError } from "./jira.js";
 import { boardToCsv } from "./csv.js";
 import { filterBoard } from "./filter.js";
 import type { Board } from "./types.js";
@@ -40,10 +41,19 @@ async function main(): Promise<void> {
   const asCsv = args.includes("--csv");
   const listFilter = argValue(args, "--list");
   const labelFilter = argValue(args, "--label");
+  const format = argValue(args, "--format") ?? "trello";
   const fileArg = args.find((a) => !a.startsWith("-"));
 
   if (asJson && asCsv) {
     console.error("kanban-export: --json and --csv can't be used together");
+    process.exitCode = 1;
+    return;
+  }
+
+  if (format !== "trello" && format !== "jira") {
+    console.error(
+      `kanban-export: unknown format '${format}' (expected 'trello' or 'jira')`,
+    );
     process.exitCode = 1;
     return;
   }
@@ -53,7 +63,8 @@ async function main(): Promise<void> {
       ? readFileSync(fileArg, "utf8")
       : await readStdin();
 
-  const board = filterBoard(parseTrelloExport(raw), {
+  const parsed = format === "jira" ? parseJiraExport(raw) : parseTrelloExport(raw);
+  const board = filterBoard(parsed, {
     list: listFilter,
     label: labelFilter,
   });
@@ -68,7 +79,7 @@ async function main(): Promise<void> {
 }
 
 main().catch((err) => {
-  if (err instanceof TrelloParseError) {
+  if (err instanceof TrelloParseError || err instanceof JiraParseError) {
     console.error(`kanban-export: ${err.message}`);
   } else {
     console.error(err);
